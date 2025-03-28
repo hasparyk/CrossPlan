@@ -1,5 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, Button } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet } from 'react-native';
+import { Text, ActivityIndicator, IconButton } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
+import { useAuth } from '../contexts/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Função para calcular a idade a partir da data de nascimento (formato "YYYY-MM-DD")
@@ -15,33 +18,61 @@ const calculateAge = (dateString) => {
   return age;
 };
 
-const ScreenAluno = ({ navigation }) => {
-  const [user, setUser] = useState(null);
+const ScreenAluno = () => {
+  const { user, signOut } = useAuth();
+  const navigation = useNavigation();
   const [loading, setLoading] = useState(true);
-
-  const loadUserData = async () => {
-    try {
-      // Supondo que, no login, você tenha salvo o objeto do usuário com a key "user"
-      const userDataString = await AsyncStorage.getItem('user');
-      if (userDataString) {
-        const userData = JSON.parse(userDataString);
-        setUser(userData);
-      }
-    } catch (error) {
-      console.log('Erro ao carregar os dados do usuário', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
     loadUserData();
   }, []);
 
+  const loadUserData = async () => {
+    try {
+      setLoading(false);
+    } catch (error) {
+      console.log('Erro ao carregar os dados do usuário', error);
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      // Limpar o token de autenticação
+      await AsyncStorage.removeItem('@auth_token');
+      await AsyncStorage.removeItem('token');
+      // Limpar outros dados salvos se necessário
+      await AsyncStorage.removeItem('@user_data');
+      await AsyncStorage.removeItem('user');
+      // Chamar a função de signOut do contexto
+      await signOut();
+      // Navegar para a tela de login
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Login' }],
+      });
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
+    }
+  };
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <IconButton
+          icon="logout"
+          size={24}
+          onPress={handleLogout}
+          style={styles.logoutButton}
+        />
+      ),
+    });
+  }, [navigation]);
+
   if (loading) {
     return (
-      <View style={styles.loader}>
-        <ActivityIndicator size="large" color="#000" />
+      <View style={[styles.container, styles.centerContent]}>
+        <ActivityIndicator size="large" color="#2196F3" />
       </View>
     );
   }
@@ -59,18 +90,15 @@ const ScreenAluno = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Bem-vindo, {user.nome}</Text>
-      <Text style={styles.info}>Telefone: {user.telefone}</Text>
-      <Text style={styles.info}>Sexo: {user.sexo || 'Não informado'}</Text>
-      <Text style={styles.info}>Idade: {idade ? idade + ' anos' : 'Não informada'}</Text>
-      
-      <Button
-        title="Logout"
-        onPress={async () => {
-          await AsyncStorage.clear();
-          navigation.replace("Login");
-        }}
-      />
+      <View style={styles.header}>
+        <Text style={styles.title}>Bem-vindo, {user.nome}</Text>
+      </View>
+
+      <View style={styles.infoContainer}>
+        <Text style={styles.info}>Telefone: {user.telefone}</Text>
+        <Text style={styles.info}>Sexo: {user.sexo || 'Não informado'}</Text>
+        <Text style={styles.info}>Idade: {idade ? idade + ' anos' : 'Não informada'}</Text>
+      </View>
     </View>
   );
 };
@@ -79,22 +107,33 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+    backgroundColor: '#f5f5f5',
+  },
+  centerContent: {
     justifyContent: 'center',
     alignItems: 'center',
   },
-  loader: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+  header: {
+    marginBottom: 24,
   },
   title: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 12,
+    color: '#333',
+  },
+  infoContainer: {
+    backgroundColor: '#fff',
+    padding: 16,
+    borderRadius: 8,
+    elevation: 2,
   },
   info: {
     fontSize: 16,
+    color: '#666',
     marginBottom: 8,
+  },
+  logoutButton: {
+    marginRight: 8,
   },
 });
 
