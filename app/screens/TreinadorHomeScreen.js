@@ -46,15 +46,11 @@ const TreinadorHomeScreen = () => {
 
   const handleLogout = async () => {
     try {
-      // Limpar o token de autenticação
       await AsyncStorage.removeItem('@auth_token');
       await AsyncStorage.removeItem('token');
-      // Limpar outros dados salvos se necessário
       await AsyncStorage.removeItem('@user_data');
       await AsyncStorage.removeItem('user');
-      // Chamar a função de signOut do contexto
       await signOut();
-      // Navegar para a tela de login
       navigation.reset({
         index: 0,
         routes: [{ name: 'Login' }],
@@ -80,7 +76,7 @@ const TreinadorHomeScreen = () => {
   if (loading) {
     return (
       <View style={[styles.container, styles.centerContent]}>
-        <ActivityIndicator size="large" color={theme.colors.primary} />
+        <ActivityIndicator size="large" color="#e57417" />
       </View>
     );
   }
@@ -96,49 +92,69 @@ const TreinadorHomeScreen = () => {
         <Text style={styles.errorText}>{error}</Text>
       ) : (
         <View style={styles.statsContainer}>
-          <Card style={styles.statsCard}>
-            <Card.Content>
-              <Title style={styles.statsNumber}>{stats.totalAlunos}</Title>
-              <Text style={styles.statsLabel}>Total de Alunos</Text>
-            </Card.Content>
-          </Card>
+          <View style={styles.statCardShadow}>
+            <Card style={styles.statsCard}>
+              <Card.Content style={styles.statsCardContent}>
+                <View style={[styles.statsIconContainer, styles.totalAlunosIcon]}>
+                  <Text style={styles.statsIconText}>👥</Text>
+                </View>
+                <View style={styles.statsTextContainer}>
+                  <Text style={styles.statsNumber}>{stats.totalAlunos}</Text>
+                  <Text style={styles.statsLabel}>Total de Alunos</Text>
+                </View>
+              </Card.Content>
+            </Card>
+          </View>
 
-          <Card style={styles.statsCard}>
-            <Card.Content>
-              <Title style={styles.statsNumber}>{stats.novosAlunos}</Title>
-              <Text style={styles.statsLabel}>Novos Alunos</Text>
-            </Card.Content>
-          </Card>
+          <View style={styles.statCardShadow}>
+            <Card style={styles.statsCard}>
+              <Card.Content style={styles.statsCardContent}>
+                <View style={[styles.statsIconContainer, styles.novosAlunosIcon]}>
+                  <Text style={styles.statsIconText}>✨</Text>
+                </View>
+                <View style={styles.statsTextContainer}>
+                  <Text style={styles.statsNumber}>{stats.novosAlunos}</Text>
+                  <Text style={styles.statsLabel}>Novos Alunos</Text>
+                </View>
+              </Card.Content>
+            </Card>
+          </View>
         </View>
       )}
 
       <View style={styles.buttonsContainer}>
-        <Button
-          mode="contained"
-          style={styles.button}
-          labelStyle={styles.buttonLabel}
-          onPress={() => navigation.navigate('DashboardAlunos')}
-        >
-          Dashboard de Alunos
-        </Button>
+        <View style={styles.buttonShadow}>
+          <Button
+            mode="contained"
+            style={styles.button}
+            labelStyle={styles.buttonLabel}
+            onPress={() => navigation.navigate('DashboardAlunos')}
+          >
+            Dashboard de Alunos
+          </Button>
+        </View>
 
-        <Button
-          mode="contained"
-          style={styles.button}
-          labelStyle={styles.buttonLabel}
-          onPress={() => navigation.navigate('MontarTreinos')}
-        >
-          Montar Treinos
-        </Button>
+        <View style={styles.buttonShadow}>
+          <Button
+            mode="contained"
+            style={styles.button}
+            labelStyle={styles.buttonLabel}
+            onPress={() => navigation.navigate('MontarTreinos')}
+          >
+            Montar Treinos
+          </Button>
+        </View>
 
-        <Button
-          mode="contained"
-          style={styles.button}
-          labelStyle={styles.buttonLabel}
-          onPress={() => navigation.navigate('EditarFormulario')}
-        >
-          Editar Formulário
-        </Button>
+        <View style={styles.buttonShadow}>
+          <Button
+            mode="outlined"
+            style={styles.outlineButton}
+            labelStyle={styles.outlineButtonLabel}
+            onPress={() => navigation.navigate('EditarFormulario')}
+          >
+            Editar Formulário
+          </Button>
+        </View>
       </View>
     </View>
   );
@@ -147,7 +163,6 @@ const TreinadorHomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
     backgroundColor: '#f5f5f5',
   },
   centerContent: {
@@ -155,55 +170,113 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   header: {
-    marginBottom: 24,
+    padding: 24,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e3e8',
   },
   welcome: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#0c2a60',
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    color: '#a7a7af',
     marginTop: 8,
   },
   statsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    paddingHorizontal: 24,
     marginBottom: 32,
   },
+  statCardShadow: {
+    width: '100%',
+    marginBottom: 16,
+    borderRadius: 12,
+  },
   statsCard: {
-    flex: 1,
-    marginHorizontal: 8,
-    elevation: 4,
+    borderRadius: 12,
+    elevation: 0,
     backgroundColor: '#fff',
+  },
+  statsCardContent: {
+    flexDirection: 'row',
+    padding: 16,
+  },
+  statsIconContainer: {
+    marginRight: 16,
+  },
+  statsIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  totalAlunosIcon: {
+    backgroundColor: 'rgba(12, 42, 96, 0.1)',
+  },
+  novosAlunosIcon: {
+    backgroundColor: 'rgba(229, 116, 23, 0.1)',
+  },
+  statsIconText: {
+    fontSize: 24,
+  },
+  statsTextContainer: {
+    flex: 1,
+    justifyContent: 'center',
   },
   statsNumber: {
     fontSize: 32,
-    textAlign: 'center',
-    color: '#2196F3',
+    fontWeight: 'bold',
+    color: '#0c2a60',
   },
   statsLabel: {
-    textAlign: 'center',
-    color: '#666',
-    marginTop: 8,
+    color: '#a7a7af',
+    marginTop: 2,
+    fontSize: 14,
   },
   buttonsContainer: {
-    gap: 16,
+    paddingHorizontal: 24,
+    paddingBottom: 32,
+  },
+  buttonShadow: {
+    width: '100%',
+    marginBottom: 16,
+    borderRadius: 12,
   },
   button: {
     height: 56,
     justifyContent: 'center',
-    backgroundColor: '#2196F3',
+    borderRadius: 12,
+    elevation: 0,
+    backgroundColor: '#e57417',
+  },
+  outlineButton: {
+    height: 56,
+    justifyContent: 'center',
+    borderRadius: 12,
+    borderColor: '#0c2a60',
+    borderWidth: 2,
+    backgroundColor: 'transparent',
+  },
+  buttonContent: {
+    height: 56,
   },
   buttonLabel: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
+  },
+  outlineButtonLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#0c2a60',
   },
   errorText: {
     color: '#f44336',
     textAlign: 'center',
     marginBottom: 32,
+    fontSize: 16,
   },
   logoutButton: {
     marginRight: 8,

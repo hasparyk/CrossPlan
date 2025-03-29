@@ -135,7 +135,6 @@ const MontarTreinosScreen = () => {
   return (
     <View style={styles.container}>
       <Surface style={styles.surface}>
-        {/* Header com título e botões de ação */}
         <View style={styles.header}>
           <Title style={styles.title}>Alunos</Title>
           <IconButton
@@ -145,7 +144,6 @@ const MontarTreinosScreen = () => {
           />
         </View>
 
-        {/* Barra de busca */}
         <Searchbar
           placeholder="Buscar alunos"
           onChangeText={setSearchQuery}
@@ -153,7 +151,6 @@ const MontarTreinosScreen = () => {
           style={styles.searchBar}
         />
 
-        {/* Filtros */}
         <ScrollView 
           horizontal 
           showsHorizontalScrollIndicator={false}
@@ -197,8 +194,7 @@ const MontarTreinosScreen = () => {
           </Chip>
         </ScrollView>
 
-        {/* Lista de Alunos */}
-        <ScrollView style={styles.alunosContainer}>
+        <ScrollView style={styles.alunosList}>
           {filteredAlunos.map((aluno) => (
             <Card
               key={aluno.id}
@@ -208,23 +204,28 @@ const MontarTreinosScreen = () => {
               <Card.Content style={styles.cardContent}>
                 <View style={styles.alunoInfo}>
                   <Avatar.Text
-                    size={50}
+                    size={48}
                     label={aluno.nome.split(' ').map(n => n[0]).join('')}
-                    style={[styles.avatar, { backgroundColor: getNivelColor(aluno.nivel) }]}
+                    style={styles.avatar}
                   />
                   <View style={styles.alunoDetails}>
                     <Text style={styles.alunoNome}>{aluno.nome}</Text>
-                    <Text style={styles.alunoNivel}>
-                      {aluno.nivel.charAt(0).toUpperCase() + aluno.nivel.slice(1)}
+                    <View style={styles.nivelContainer}>
+                      <View 
+                        style={[
+                          styles.nivelIndicator,
+                          { backgroundColor: getNivelColor(aluno.nivel) }
+                        ]} 
+                      />
+                      <Text style={styles.alunoNivel}>
+                        {aluno.nivel.charAt(0).toUpperCase() + aluno.nivel.slice(1)}
+                      </Text>
+                    </View>
+                    <Text style={styles.alunoUltimoTreino}>
+                      Último treino: {aluno.ultimoTreino}
                     </Text>
                     <View style={styles.treinoInfo}>
-                      <Text style={styles.alunoUltimoTreino}>
-                        Último treino: {new Date(aluno.ultimoTreino).toLocaleDateString()}
-                      </Text>
-                      <Text style={[
-                        styles.treinosProgramados,
-                        { color: aluno.treinosProgramados <= 3 ? '#F44336' : '#4CAF50' }
-                      ]}>
+                      <Text style={styles.treinosProgramados}>
                         {aluno.treinosProgramados} treinos programados
                       </Text>
                     </View>
@@ -236,6 +237,12 @@ const MontarTreinosScreen = () => {
           ))}
         </ScrollView>
       </Surface>
+
+      <FAB
+        icon="plus"
+        style={styles.fab}
+        onPress={() => navigation.navigate('CriarTreino')}
+      />
     </View>
   );
 };
@@ -247,8 +254,6 @@ const styles = StyleSheet.create({
   },
   surface: {
     flex: 1,
-    margin: 16,
-    borderRadius: 8,
     elevation: 4,
   },
   header: {
@@ -256,13 +261,19 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 16,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e3e8',
   },
   title: {
     fontSize: 24,
+    fontWeight: 'bold',
+    color: '#0c2a60',
   },
   searchBar: {
-    marginHorizontal: 16,
-    marginBottom: 16,
+    margin: 16,
+    elevation: 0,
+    backgroundColor: '#f5f5f5',
   },
   filtersContainer: {
     paddingHorizontal: 16,
@@ -270,19 +281,19 @@ const styles = StyleSheet.create({
   },
   filterChip: {
     marginRight: 8,
+    backgroundColor: '#fff',
   },
-  alunosContainer: {
+  alunosList: {
     flex: 1,
     padding: 16,
   },
   alunoCard: {
-    marginBottom: 8,
+    marginBottom: 16,
     elevation: 2,
+    borderRadius: 12,
   },
   cardContent: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    padding: 16,
   },
   alunoInfo: {
     flexDirection: 'row',
@@ -292,20 +303,36 @@ const styles = StyleSheet.create({
   avatar: {
     marginRight: 16,
   },
+  avatarLabel: {
+    fontWeight: 'bold',
+  },
   alunoDetails: {
     flex: 1,
   },
   alunoNome: {
     fontSize: 16,
     fontWeight: 'bold',
+    color: '#0c2a60',
+    marginBottom: 4,
+  },
+  nivelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  nivelIndicator: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 6,
   },
   alunoNivel: {
     fontSize: 14,
-    color: '#666',
+    color: '#a7a7af',
   },
   alunoUltimoTreino: {
     fontSize: 12,
-    color: '#999',
+    color: '#a7a7af',
   },
   treinoInfo: {
     marginTop: 4,
@@ -313,6 +340,7 @@ const styles = StyleSheet.create({
   treinosProgramados: {
     fontSize: 12,
     marginTop: 2,
+    fontWeight: '600',
   },
   priorityBadge: {
     position: 'absolute',
@@ -328,16 +356,27 @@ const styles = StyleSheet.create({
   },
   fab: {
     position: 'absolute',
-    margin: 16,
-    right: 0,
-    bottom: 0,
-    backgroundColor: '#2196F3',
+    right: 20,
+    bottom: 20,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#e57417',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
+    elevation: 8,
   },
-  activationDistance: {
-    activationDistance: 20,
-  },
-  dragHitSlop: {
-    dragHitSlop: { top: 0, bottom: 0, left: 0, right: 0 },
+  fabIcon: {
+    fontSize: 28,
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });
 
